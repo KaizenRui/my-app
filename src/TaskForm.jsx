@@ -1,13 +1,11 @@
-import { useState } from "react"; 
-
-function TaskForm({ addTask }) {
-  const [taskText, setTaskText] = useState("");
+function TaskForm({ addTask, deadline, setDeadline }) {
+  const [text, setText] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (taskText.trim()) {
-      addTask(taskText);
-      setTaskText("");
+    if (text.trim()) {
+      addTask(text);
+      setText('');
     }
   };
 
@@ -15,11 +13,17 @@ function TaskForm({ addTask }) {
     <form onSubmit={handleSubmit}>
       <input
         type="text"
-        value={taskText}
-        onChange={(e) => setTaskText(e.target.value)}
-        placeholder="Add a new task..."
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Task..."
       />
-      <button type="submit">Add Task</button>
+      <input
+        type="text"
+        value={deadline}
+        onChange={(e) => setDeadline(e.target.value)}
+        placeholder="Deadline (optional)"
+      />
+      <button type="submit">Add</button>
     </form>
   );
 }

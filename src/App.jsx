@@ -1,36 +1,43 @@
-import { useState } from "react";
-import TaskForm from "./TaskForm";
-import TaskList from "./TaskList";
-import './App.css';
+import { useState } from 'react';
+import TaskForm from './TaskForm';
+import TaskList from './TaskList';
 
 function App() {
   const [tasks, setTasks] = useState([]);
+  const [filter, setFilter] = useState('all');
+  const [newDeadline, setNewDeadline] = useState('');
 
-  const addTask = (newTask) => {
-    setTasks([...tasks, { id: Date.now(), text: newTask, completed: false }]);
+  const addTask = (text) => {
+    setTasks([...tasks, {
+      id: Date.now(),
+      text,
+      completed: false,
+      deadline: newDeadline || 'No deadline'
+    }]);
+    setNewDeadline('');
   };
 
-  const deleteTask = (id) => {
-    setTasks(tasks.filter((task) => task.id !== id));
-  };
-
-  const toggleComplete = (id) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
+  const filteredTasks = tasks.filter(task => 
+    filter === 'all' || 
+    (filter === 'open' && !task.completed) || 
+    (filter === 'completed' && task.completed)
+  );
 
   return (
-    <div className="app">
-      <h1>Task Manager</h1>
-      <TaskForm addTask={addTask} />
-      <TaskList 
-        tasks={tasks} 
-        deleteTask={deleteTask} 
-        toggleComplete={toggleComplete} 
+    <div>
+      <TaskForm 
+        addTask={addTask} 
+        deadline={newDeadline} 
+        setDeadline={setNewDeadline} 
       />
+      
+      <div>
+        <button onClick={() => setFilter('all')}>All</button>
+        <button onClick={() => setFilter('open')}>Open</button>
+        <button onClick={() => setFilter('completed')}>Completed</button>
+      </div>
+
+      <TaskList tasks={filteredTasks} />
     </div>
   );
 }

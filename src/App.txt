@@ -1,0 +1,49 @@
+1. // Import state management from React
+2. Get the 'useState' tool from React core
+
+3. // Import our custom components
+4. Load TaskForm component from './TaskForm'
+5. Load TaskList component from './TaskList'
+
+6. // Define main App component
+7. FUNCTION App():
+8.    // Initialize state variables
+9.    CREATE tasks = empty array [ ] (will store all tasks)
+10.   CREATE filter = 'all' (tracks current view mode)
+11.   CREATE newDeadline = '' (temporary deadline input)
+
+12.   // Define task creation function
+13.   FUNCTION addTask(text):
+14.      UPDATE tasks to include new object:
+15.         - id: current timestamp (unique identifier)
+16.         - text: user's task description
+17.         - completed: false (default state)
+18.         - deadline: newDeadline OR 'No deadline' if empty
+v 
+
+20.   // Filter tasks based on current mode
+21.   CREATE filteredTasks = tasks filtered by:
+22.      IF filter is 'all' → keep all tasks
+23.      IF filter is 'open' → keep only incomplete tasks
+24.      IF filter is 'completed' → keep only done tasks
+
+25.   // Render UI
+26.   RETURN:
+27.      DIV container:
+28.         // Task input form
+29.         TaskForm COMPONENT with:
+30.            - addTask function (passed down)
+31.            - current deadline value
+32.            - deadline update function
+
+33.         // Filter controls
+34.         DIV filter buttons:
+35.            BUTTON 'All' → sets filter to 'all'
+36.            BUTTON 'Open' → sets filter to 'open'
+37.            BUTTON 'Completed' → sets filter to 'completed'
+
+38.         // Task display
+39.         TaskList COMPONENT showing filteredTasks
+
+40. // Make App available to other files
+41. EXPORT App as default component
