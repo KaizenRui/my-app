@@ -17,6 +17,16 @@ function App() {
     setNewDeadline('');
   };
 
+  const deleteTask = (id) => {
+    setTasks(tasks.filter(task => task.id !== id));
+  };
+
+  const toggleTask = (id) => {
+    setTasks(tasks.map(task => 
+      task.id === id ? { ...task, completed: !task.completed } : task
+    ));
+  };
+
   const filteredTasks = tasks.filter(task => 
     filter === 'all' || 
     (filter === 'open' && !task.completed) || 
@@ -24,20 +34,40 @@ function App() {
   );
 
   return (
-    <div>
+    <div className="app">
+      <h1>Task Manager</h1>
       <TaskForm 
         addTask={addTask} 
         deadline={newDeadline} 
         setDeadline={setNewDeadline} 
       />
       
-      <div>
-        <button onClick={() => setFilter('all')}>All</button>
-        <button onClick={() => setFilter('open')}>Open</button>
-        <button onClick={() => setFilter('completed')}>Completed</button>
+      <div className="filter-buttons">
+        <button 
+          onClick={() => setFilter('all')}
+          className={filter === 'all' ? 'active' : ''}
+        >
+          All
+        </button>
+        <button 
+          onClick={() => setFilter('open')}
+          className={filter === 'open' ? 'active' : ''}
+        >
+          Open
+        </button>
+        <button 
+          onClick={() => setFilter('completed')}
+          className={filter === 'completed' ? 'active' : ''}
+        >
+          Completed
+        </button>
       </div>
 
-      <TaskList tasks={filteredTasks} />
+      <TaskList 
+        tasks={filteredTasks} 
+        deleteTask={deleteTask}
+        toggleTask={toggleTask}
+      />
     </div>
   );
 }

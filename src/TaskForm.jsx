@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 function TaskForm({ addTask, deadline, setDeadline }) {
   const [text, setText] = useState('');
 
@@ -10,20 +12,24 @@ function TaskForm({ addTask, deadline, setDeadline }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="task-form">
       <input
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Task..."
+        placeholder="Enter task..."
+        className="task-input"
+        required
       />
       <input
-        type="text"
+        type="datetime-local"
         value={deadline}
         onChange={(e) => setDeadline(e.target.value)}
-        placeholder="Deadline (optional)"
+        className="deadline-input"
       />
-      <button type="submit">Add</button>
+      <button type="submit" className="add-button">
+        Add Task
+      </button>
     </form>
   );
 }

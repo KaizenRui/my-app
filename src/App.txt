@@ -1,49 +1,66 @@
-1. // Import state management from React
-2. Get the 'useState' tool from React core
+START
 
-3. // Import our custom components
-4. Load TaskForm component from './TaskForm'
-5. Load TaskList component from './TaskList'
+Import dependencies:
+  → import useState from 'react'          ← to manage state
+  → import TaskForm from './TaskForm'     ← custom form component
+  → import TaskList from './TaskList'     ← custom list display component
 
-6. // Define main App component
-7. FUNCTION App():
-8.    // Initialize state variables
-9.    CREATE tasks = empty array [ ] (will store all tasks)
-10.   CREATE filter = 'all' (tracks current view mode)
-11.   CREATE newDeadline = '' (temporary deadline input)
+Initialize app:
+  → Create state variable: tasks = []
+  → Create state variable: filter = "all"
+  → Create state variable: newDeadline = ""
 
-12.   // Define task creation function
-13.   FUNCTION addTask(text):
-14.      UPDATE tasks to include new object:
-15.         - id: current timestamp (unique identifier)
-16.         - text: user's task description
-17.         - completed: false (default state)
-18.         - deadline: newDeadline OR 'No deadline' if empty
-v 
+App renders:
+  → Call <TaskForm /> and pass down props:
+      - addTask function
+      - deadline value
+      - setDeadline function
 
-20.   // Filter tasks based on current mode
-21.   CREATE filteredTasks = tasks filtered by:
-22.      IF filter is 'all' → keep all tasks
-23.      IF filter is 'open' → keep only incomplete tasks
-24.      IF filter is 'completed' → keep only done tasks
+User types task text
+  → TaskForm tracks value with state
+  → Passed text is used by addTask()
 
-25.   // Render UI
-26.   RETURN:
-27.      DIV container:
-28.         // Task input form
-29.         TaskForm COMPONENT with:
-30.            - addTask function (passed down)
-31.            - current deadline value
-32.            - deadline update function
+User types deadline
+  → newDeadline state is updated using setDeadline()
 
-33.         // Filter controls
-34.         DIV filter buttons:
-35.            BUTTON 'All' → sets filter to 'all'
-36.            BUTTON 'Open' → sets filter to 'open'
-37.            BUTTON 'Completed' → sets filter to 'completed'
+User clicks "Add" button
+  → TaskForm calls addTask(text)
+    → addTask():
+        - Create new task object with id, text, completed=false, deadline
+        - Add task to tasks[] using setTasks()
+        - Clear newDeadline
 
-38.         // Task display
-39.         TaskList COMPONENT showing filteredTasks
+App renders:
+  → Show filter buttons ("All", "Open", "Completed")
+  → Each button uses setFilter() to change the current view
 
-40. // Make App available to other files
-41. EXPORT App as default component
+User clicks a filter button
+  → setFilter("all" | "open" | "completed")
+  → filteredTasks = tasks filtered based on filter:
+      - If filter == "all" → return all tasks
+      - If filter == "open" → return tasks where completed == false
+      - If filter == "completed" → return tasks where completed == true
+
+App renders:
+  → Call <TaskList /> and pass down props:
+      - filteredTasks
+      - deleteTask function
+      - toggleTask function
+
+User sees task list
+  → Each task is displayed with:
+      - text
+      - deadline
+      - checkbox (completion)
+      - delete button (X)
+
+User clicks checkbox on a task
+  → toggleTask(id)
+    → Find task by id
+    → Flip task.completed true/false using setTasks()
+
+User clicks delete button (X)
+  → deleteTask(id)
+    → Remove task by id using setTasks()
+
+END

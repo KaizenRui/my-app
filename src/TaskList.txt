@@ -1,0 +1,43 @@
+START
+
+🟡 Define TaskList component
+→ It receives from the parent (App component):
+   - tasks ← a list of task objects
+   - deleteTask ← a function to remove a task
+   - toggleTask ← a function to toggle task completion
+
+🔵 Check if tasks list is empty:
+→ If tasks.length === 0
+   → Show message: "No tasks found"
+
+🔁 If there are tasks:
+→ Loop through tasks using map()
+   For each task:
+     - Create a list item (li)
+     - Assign a unique key using task.id
+     - Apply "completed" CSS class if task.completed is true
+
+👆 Inside each list item:
+→ Display clickable task content area (div):
+   - When clicked → call toggleTask(task.id)
+
+✅ Inside the clickable area:
+→ Show a checkbox:
+   - Checked if task is completed
+   - When changed → call toggleTask(task.id)
+   - Stop the click from bubbling up using e.stopPropagation()
+
+→ Show task details:
+   - task.text ← the main task name
+   - task.deadline ← the user-defined deadline
+   - task.completed ← if true, show ✅ else show ⏳
+
+❌ Show delete button:
+→ When clicked → call deleteTask(task.id)
+
+🖥️ Render the full list of tasks as <ul> with list items inside
+
+📤 Export TaskList component
+→ Makes this component usable in App.js
+
+END

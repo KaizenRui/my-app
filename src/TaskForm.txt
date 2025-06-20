@@ -1,0 +1,41 @@
+START
+
+🟡 Import useState from 'react'
+→ This enables the component to store and update local data (text input)
+
+🔵 Define TaskForm component
+→ Receives these from the parent (App component) via props:
+   - addTask ← function to add a task
+   - deadline ← current deadline value
+   - setDeadline ← function to update deadline
+
+🟢 Create local state:
+→ Declare text = "" using useState
+→ Will store what the user types in the input box
+
+👨‍💻 User types something in the task input:
+→ Triggers onChange
+→ Calls setText() ← updates local state (text)
+
+⏰ User picks a deadline in the second input:
+→ Triggers onChange
+→ Calls setDeadline() ← updates the parent's state (deadline)
+
+👆 User clicks the "Add Task" button OR presses Enter:
+→ Triggers handleSubmit() function
+   - Calls e.preventDefault() ← stops form from refreshing
+   - Checks if text is not empty
+     → If yes:
+        - Calls addTask(text) ← sends task text to App component
+        - Calls setText('') ← clears the input box
+
+🖥️ Render this on screen:
+→ A form containing:
+   - A textbox to type the task (connected to local state)
+   - A datetime-local input for deadline (connected to parent state)
+   - A submit button to trigger task creation
+
+📤 Export TaskForm component
+→ Makes it available for import and use in other files like App.js
+
+END
