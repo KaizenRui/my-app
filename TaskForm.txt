@@ -1,0 +1,30 @@
+IMPORT useState from React
+
+DEFINE functional component TaskForm with props:
+  - addTask: function to add a task (from App)
+  - deadline: current deadline value
+  - setDeadline: function to update deadline
+
+INITIALIZE local state:
+  - text (input field for task name)
+
+DEFINE handleSubmit function:
+  PREVENT default form submission behavior
+  IF text is not just whitespace:
+    CALL addTask with text input
+    RESET text to empty
+    RESET deadline to empty
+
+RETURN JSX:
+  - Form element with onSubmit = handleSubmit
+    - Text input for task description
+      - Binds to 'text' state
+      - Updates 'text' on change
+      - Placeholder: "Enter task..."
+      - Required field
+    - Datetime input for deadline
+      - Binds to 'deadline' prop
+      - Updates deadline using setDeadline
+    - Submit button labeled "Add Task"
+
+EXPORT TaskForm component as default

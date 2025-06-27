@@ -1,0 +1,44 @@
+FUNCTION App:
+    INITIALIZE a state variable 'tasks' as an empty list
+    INITIALIZE a state variable 'filter' with default value 'all'
+    INITIALIZE a state variable 'newDeadline' as an empty string
+
+    DEFINE FUNCTION addTask(text):
+        CREATE a new task object with:
+            - unique ID (based on current timestamp)
+            - text from input
+            - completed status as false
+            - deadline (use 'newDeadline' if provided, else set to 'No deadline')
+        APPEND the new task to 'tasks' list
+        CLEAR 'newDeadline'
+
+    DEFINE FUNCTION deleteTask(taskId):
+        REMOVE the task from 'tasks' list where task.id equals taskId
+
+    DEFINE FUNCTION toggleTask(taskId):
+        FOR EACH task in 'tasks':
+            IF task.id equals taskId:
+                TOGGLE the value of task.completed
+
+    FILTER the tasks based on current 'filter':
+        - IF filter is 'all', return all tasks
+        - IF filter is 'open', return tasks where completed is false
+        - IF filter is 'completed', return tasks where completed is true
+
+    RENDER UI:
+        - Display heading: "Task Manager"
+        - Render TaskForm component, passing:
+            - addTask function
+            - current deadline value
+            - function to update deadline
+        - Render filter buttons for:
+            - All
+            - Open
+            - Completed
+          (Apply 'active' class to the currently selected filter)
+        - Render TaskList component, passing:
+            - filteredTasks list
+            - deleteTask function
+            - toggleTask function
+
+EXPORT App as the default component
