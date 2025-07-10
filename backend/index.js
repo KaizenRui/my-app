@@ -5,12 +5,12 @@ const taskRoutes = require('./routes/taskRoutes');
 const authRoute = require('./routes/authRoute');
 
 const app = express();
-const PORT = 5000;
+const PORT = 5000; 
 
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000'];
+const allowedOrigins = ['http://localhost:5173'];
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: allowedOrigins,
   credentials: true
 }));
 
@@ -24,7 +24,6 @@ app.use(session({
     secure: false
   }
 }));
-
 
 app.use('/tasks', taskRoutes);
 app.use('/auth', authRoute);
