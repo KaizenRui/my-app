@@ -1,8 +1,5 @@
-// backend/controllers/taskController.js
+const pool = require('../db');
 
-const pool = require('../db'); // ✅ PostgreSQL connection setup
-
-// 👉 Create a task and insert it into the DB
 const createTask = async (req, res) => {
   const { text, completed, deadline } = req.body;
 
@@ -14,25 +11,23 @@ const createTask = async (req, res) => {
       [text, completed || false, deadline || 'No deadline']
     );
 
-    res.status(201).json(result.rows[0]); // ✅ Return the newly added task
+    res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Something went wrong' });
   }
 };
 
-// 👉 Get all tasks from the DB
 const getTasks = async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM tasks ORDER BY id ASC');
-    res.status(200).json(result.rows); // ✅ Return all tasks
+    res.status(200).json(result.rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Something went wrong' });
   }
 };
 
-// 👉 Delete a task from the DB by ID
 const deleteTask = async (req, res) => {
   const { id } = req.params;
 
@@ -56,7 +51,6 @@ const setStatus = async (req, res) => {
     res.status(500).json({ error: 'Something went wrong while updating status' });
   }
 };
-
 
 module.exports = {
   createTask,
