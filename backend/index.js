@@ -29,7 +29,7 @@ app.use('/tasks', taskRoutes);
 app.use('/auth', authRoute);
 
 app.get('/', (req, res) => {
-  res.send('Server is running...');
+  res.send('Server is running...');   
 });
 
 app.listen(PORT, () => {

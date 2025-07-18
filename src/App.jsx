@@ -20,7 +20,7 @@ export default function App() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ content: taskInput })
+      body: JSON.stringify({ text: taskInput })
     })
       .then(res => res.json())
       .then(newTask => {
@@ -35,7 +35,7 @@ export default function App() {
       credentials: 'include'
     })
       .then(() => {
-        setTasks(prev => prev.filter(task => task._id !== id));
+        setTasks(prev => prev.filter(task => task.id !== id));
       });
   }
 
@@ -48,11 +48,11 @@ export default function App() {
       .then(updatedTask => {
         setTasks(prev =>
           prev.map(task =>
-            task._id === updatedTask._id ? updatedTask : task
+            task.id === updatedTask.id ? updatedTask : task
           )
         );
       });
-  }``
+  }
 
   return (
     <div>
@@ -70,14 +70,14 @@ export default function App() {
 
       <ul>
         {tasks.map(task => (
-          <li key={task._id}>
+          <li key={task.id}>
             <span
-              style={{ textDecoration: task.done ? 'line-through' : 'none' }}
-              onClick={() => toggleStatus(task._id)}
+              style={{ textDecoration: task.completed ? 'line-through' : 'none' }}
+              onClick={() => toggleStatus(task.id)}
             >
-              {task.content}
+              {task.text}
             </span>
-            <button onClick={() => deleteTask(task._id)}>❌</button>
+            <button onClick={() => deleteTask(task.id)}>❌</button>
           </li>
         ))}
       </ul>
