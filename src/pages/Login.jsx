@@ -16,7 +16,7 @@ export default function Login() {
       body: JSON.stringify({ username: username.value, password: password.value })
     })
       .then(res => res.json())
-      .then(data => {
+      .then(data => {                                     
         setMsg(data.message);
         if (data.success) {
           navigate('/App'); // go to dashboard page after success

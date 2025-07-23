@@ -1,86 +1,96 @@
 import React, { useEffect, useState } from 'react';
 
 export default function App() {
-  const [tasks, setTasks] = useState([]);
-  const [taskInput, setTaskInput] = useState('');
+const [tasks, setTasks] = useState([]);
+const [taskInput, setTaskInput] = useState('');
 
-  useEffect(() => {
-    fetch('http://localhost:5000/tasks', {
-      credentials: 'include'
-    })
-      .then(res => res.json())
-      .then(data => setTasks(data))
-      .catch(err => console.error('Error fetching tasks:', err));
-  }, []);
+useEffect(() => {
+fetch('http://localhost:5000/tasks', {
+  credentials: 'include'
+})
+  .then(async res => {
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Fetch failed');
+    }
+    return data;
+  })
+  .then(data => setTasks(data))
+  .catch(err => {
+    console.error('Error fetching tasks:', err.message);
+    setTasks([]); // Prevents .map crash if unauthorized or error
+  });
+}, []);
 
-  function addTask(e) {
-    e.preventDefault();
 
-    fetch('http://localhost:5000/tasks', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ text: taskInput })
-    })
-      .then(res => res.json())
-      .then(newTask => {
-        setTasks(prev => [...prev, newTask]);
-        setTaskInput('');
-      });
-  }
+function addTask(e) {
+  e.preventDefault();
 
-  function deleteTask(id) {
-    fetch(`http://localhost:5000/tasks/${id}`, {
-      method: 'DELETE',
-      credentials: 'include'
-    })
-      .then(() => {
-        setTasks(prev => prev.filter(task => task.id !== id));
-      });
-  }
+  fetch('http://localhost:5000/tasks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ text: taskInput })
+  })
+    .then(res => res.json())
+    .then(newTask => {
+      setTasks(prev => [...prev, newTask]);
+      setTaskInput('');
+    });
+}
 
-  function toggleStatus(id) {
-    fetch(`http://localhost:5000/tasks/${id}/status`, {
-      method: 'POST',
-      credentials: 'include'
-    })
-      .then(res => res.json())
-      .then(updatedTask => {
-        setTasks(prev =>
-          prev.map(task =>
-            task.id === updatedTask.id ? updatedTask : task
-          )
-        );
-      });
-  }
+function deleteTask(id) {
+  fetch(`http://localhost:5000/tasks/${id}`, {
+    method: 'DELETE',
+    credentials: 'include'
+  })
+    .then(() => {
+      setTasks(prev => prev.filter(task => task.id !== id));
+    });
+}
 
-  return (
-    <div>
-      <h2>Task List</h2>
+function toggleStatus(id) {
+  fetch(`http://localhost:5000/tasks/${id}/status`, {
+    method: 'POST',
+    credentials: 'include'
+  })
+    .then(res => res.json())
+    .then(updatedTask => {
+      setTasks(prev =>
+        prev.map(task =>
+          task.id === updatedTask.id ? updatedTask : task
+        )
+      );
+    });  
+}
 
-      <form onSubmit={addTask}>
-        <input
-          value={taskInput}
-          onChange={e => setTaskInput(e.target.value)}
-          placeholder="Enter task"
-          required
-        />
-        <button type="submit">Add Task</button>
-      </form>
+return (
+  <div>
+    <h2>Task List</h2>
 
-      <ul>
-        {tasks.map(task => (
-          <li key={task.id}>
-            <span
-              style={{ textDecoration: task.completed ? 'line-through' : 'none' }}
-              onClick={() => toggleStatus(task.id)}
-            >
-              {task.text}
-            </span>
-            <button onClick={() => deleteTask(task.id)}>❌</button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+    <form onSubmit={addTask}>
+      <input
+        value={taskInput}
+        onChange={e => setTaskInput(e.target.value)}
+        placeholder="Enter task"
+        required
+      />
+      <button type="submit">Add Task</button>
+    </form>
+
+    <ul>
+      {tasks.map(task => (
+        <li key={task.id}>
+          <span
+            style={{ textDecoration: task.completed ? 'line-through' : 'none' }}
+            onClick={() => toggleStatus(task.id)}
+          >
+            {task.text}
+          </span>
+          <button onClick={() => deleteTask(task.id)}>❌</button>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
 }

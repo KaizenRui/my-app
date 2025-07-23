@@ -7,7 +7,7 @@ import App from './App';
 export function Router() {
   return (
     <Routes>
-      <Route path="/app" element={<App />} />
+      <Route path="/App" element={<App />} />
       <Route path="/about" element={<About />} />
       <Route path="/login" element={<Login />} />
     </Routes>

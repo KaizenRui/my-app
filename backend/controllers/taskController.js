@@ -1,14 +1,19 @@
 const pool = require('../db');
 
 const createTask = async (req, res) => {
+  const user = req.session.user;
   const { text, completed, deadline } = req.body;
-
   try {
     const result = await pool.query(
-      `INSERT INTO tasks (text, completed, deadline)
-       VALUES ($1, $2, $3)
+      `INSERT INTO tasks (text, completed, deadline, user_id)
+       VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [text, completed || false, deadline || 'No deadline']
+      [
+        text,
+        completed || false,
+        deadline || 'No deadline',
+        user
+      ]
     );
 
     res.status(201).json(result.rows[0]);
@@ -20,6 +25,8 @@ const createTask = async (req, res) => {
 
 const getTasks = async (req, res) => {
   try {
+    const user = req.session.user;
+    if (!user) return res.status(401).json({ message: 'Unauthorized' });
     const result = await pool.query('SELECT * FROM tasks ORDER BY id ASC');
     res.status(200).json(result.rows);
   } catch (err) {
