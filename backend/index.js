@@ -3,6 +3,7 @@ const session = require('express-session');
 const cors = require('cors');
 const taskRoutes = require('./routes/taskRoutes');
 const authRoute = require('./routes/authRoute');
+const checkAuth = require('./routes/checkAuth');
 
 const app = express();
 const PORT = 5000; 
@@ -27,6 +28,7 @@ app.use(session({
 
 app.use('/tasks', taskRoutes);
 app.use('/auth', authRoute);
+app.use('/check-auth', checkAuth);
 
 app.get('/', (req, res) => {
   res.send('Server is running...');   

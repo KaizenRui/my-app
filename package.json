@@ -124,6 +124,8 @@
   "homepage": "https://github.com/KaizenRui/my-app#readme",
   "description": "",
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.6.0"
+    "@vitejs/plugin-react": "^4.6.0",
+    "concurrently": "^9.2.0",
+    "nodemon": "^3.1.10"
   }
 }

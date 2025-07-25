@@ -11,7 +11,7 @@ const login = async (req, res) => {
   }
 
   try {
-    // ✅ Secure: parameterized query
+
     const query = 'SELECT * FROM users WHERE username = $1';
     const values = [username];
 
@@ -53,15 +53,25 @@ const login = async (req, res) => {
     });
   }
 };
-
 const logout = (req, res) => {
+  req.session.user = null; 
+
   req.session.destroy(err => {
     if (err) {
       return res.status(500).send('Error logging out');
     }
-    res.clearCookie('connect.sid');
+
+    res.clearCookie('connect.sid', {
+      path: '/',
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax'
+    });
+
     res.send('Logged out');
   });
 };
+
+
 
 module.exports = { login, logout };

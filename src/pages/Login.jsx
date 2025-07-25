@@ -26,11 +26,13 @@ export default function Login() {
   };
 
   return (
+    <>
     <form onSubmit={handleSubmit}>
       <input name="username" placeholder="Username" />
       <input name="password" type="password" placeholder="Password" />
       <button>Login</button>
       <p>{msg}</p>
     </form>
+    </>
   );
 }

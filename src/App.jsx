@@ -1,96 +1,141 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function App() {
-const [tasks, setTasks] = useState([]);
-const [taskInput, setTaskInput] = useState('');
+  const [tasks, setTasks] = useState([]);
+  const [taskInput, setTaskInput] = useState('');
+  const [user, setUser] = useState(null); // for login state
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-useEffect(() => {
-fetch('http://localhost:5000/tasks', {
-  credentials: 'include'
-})
-  .then(async res => {
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.message || 'Fetch failed');
-    }
-    return data;
-  })
-  .then(data => setTasks(data))
-  .catch(err => {
-    console.error('Error fetching tasks:', err.message);
-    setTasks([]); // Prevents .map crash if unauthorized or error
-  });
-}, []);
+  useEffect(() => {
+    // 1. First check if user is logged in
+    fetch('http://localhost:5000/check-auth', {
+      credentials: 'include'
+    })
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || 'Not logged in');
+        }
+        setUser(data); // Set user info if logged in
+ 
+      })
+      .then(() => {
+        // 2. Then fetch tasks
+        return fetch('http://localhost:5000/tasks', {
+          credentials: 'include'
+        });
+      })
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Fetch tasks failed');
+        setTasks(data);
+      })
+        .catch(err => {
+        console.error(err.message);
+        setUser(null);
+        setTasks([]);
+        navigate('/login'); // ✅ redirect to login page
+      })
 
+      .finally(() => setLoading(false));
+  }, []);
 
-function addTask(e) {
-  e.preventDefault();
+  function addTask(e) {
+    e.preventDefault();
 
-  fetch('http://localhost:5000/tasks', {
+    fetch('http://localhost:5000/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ text: taskInput })
+    })
+      .then(res => res.json())
+      .then(newTask => {
+        setTasks(prev => [...prev, newTask]);
+        setTaskInput('');
+      });
+  }
+
+  function deleteTask(id) {
+    fetch(`http://localhost:5000/tasks/${id}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    })
+      .then(() => {
+        setTasks(prev => prev.filter(task => task.id !== id));
+      });
+  }
+
+  function toggleStatus(id) {
+    fetch(`http://localhost:5000/tasks/${id}/status`, {
+      method: 'POST',
+      credentials: 'include'
+    })
+      .then(res => res.json())
+      .then(updatedTask => {
+        setTasks(prev =>
+          prev.map(task =>
+            task.id === updatedTask.id ? updatedTask : task
+          )
+        );
+      });
+  }
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+function handleLogout() {
+  fetch('http://localhost:5000/auth/logout', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ text: taskInput })
-  })
-    .then(res => res.json())
-    .then(newTask => {
-      setTasks(prev => [...prev, newTask]);
-      setTaskInput('');
-    });
-}
-
-function deleteTask(id) {
-  fetch(`http://localhost:5000/tasks/${id}`, {
-    method: 'DELETE',
     credentials: 'include'
   })
     .then(() => {
-      setTasks(prev => prev.filter(task => task.id !== id));
+      setUser(null);
+      setTasks([]);
+      navigate('/login');
+    })
+    .catch(err => {
+      console.error('Logout failed:', err);
     });
 }
 
-function toggleStatus(id) {
-  fetch(`http://localhost:5000/tasks/${id}/status`, {
-    method: 'POST',
-    credentials: 'include'
-  })
-    .then(res => res.json())
-    .then(updatedTask => {
-      setTasks(prev =>
-        prev.map(task =>
-          task.id === updatedTask.id ? updatedTask : task
-        )
-      );
-    });  
-}
+if (!user) {
+    return <p>Please log in first.</p>;
+  }
 
-return (
-  <div>
-    <h2>Task List</h2>
+  return (
+    <div>
+      <h2>Task List</h2>
 
-    <form onSubmit={addTask}>
-      <input
-        value={taskInput}
-        onChange={e => setTaskInput(e.target.value)}
-        placeholder="Enter task"
-        required
-      />
-      <button type="submit">Add Task</button>
-    </form>
+      <form onSubmit={addTask}>
+        <input
+          value={taskInput}
+          onChange={e => setTaskInput(e.target.value)}
+          placeholder="Enter task"
+          required
+        />
+        <button type="submit">Add Task</button>
+      </form>
 
-    <ul>
-      {tasks.map(task => (
-        <li key={task.id}>
-          <span
-            style={{ textDecoration: task.completed ? 'line-through' : 'none' }}
-            onClick={() => toggleStatus(task.id)}
-          >
-            {task.text}
-          </span>
-          <button onClick={() => deleteTask(task.id)}>❌</button>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+      <ul>
+        {tasks.map(task => (
+          <li key={task.id}>
+            <span
+              style={{ textDecoration: task.completed ? 'line-through' : 'none' }}
+              onClick={() => toggleStatus(task.id)}
+            >
+              {task.text}
+            </span>
+            <button onClick={() => deleteTask(task.id)}>❌</button>
+          </li>
+        ))}
+      </ul>
+
+      <button onClick={handleLogout}>Logout</button>
+
+    </div>
+  );
 }

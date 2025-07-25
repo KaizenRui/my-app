@@ -12,7 +12,7 @@ const createTask = async (req, res) => {
         text,
         completed || false,
         deadline || 'No deadline',
-        user
+        user.id
       ]
     );
 
@@ -27,13 +27,19 @@ const getTasks = async (req, res) => {
   try {
     const user = req.session.user;
     if (!user) return res.status(401).json({ message: 'Unauthorized' });
-    const result = await pool.query('SELECT * FROM tasks ORDER BY id ASC');
+
+    const result = await pool.query(
+      'SELECT * FROM tasks WHERE user_id = $1 ORDER BY id ASC',
+      [user.id] // ← use the session user's ID
+    );
+
     res.status(200).json(result.rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Something went wrong' });
   }
 };
+
 
 const deleteTask = async (req, res) => {
   const { id } = req.params;
