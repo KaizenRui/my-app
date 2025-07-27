@@ -1,4 +1,4 @@
-const pool = require('../db');
+const pool = require('../db'); 
 
 const login = async (req, res) => {
   const { username, password } = req.body;
@@ -13,7 +13,7 @@ const login = async (req, res) => {
   try {
 
     const query = 'SELECT * FROM users WHERE username = $1';
-    const values = [username];
+    const values = [username]; //proof that gitlense is working
 
     const result = await pool.query(query, values);
 
