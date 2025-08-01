@@ -22,9 +22,12 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false
+    httpOnly: true,
+    secure: false,      
+    sameSite: 'lax' 
   }
 }));
+
 
 app.use('/tasks', taskRoutes);
 app.use('/auth', authRoute);

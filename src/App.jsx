@@ -4,12 +4,14 @@ import { useNavigate } from 'react-router-dom';
 export default function App() {
   const [tasks, setTasks] = useState([]);
   const [taskInput, setTaskInput] = useState('');
-  const [user, setUser] = useState(null); // for login state
+  const [user, setUser] = useState(null);
+  const [completed, setCompleted] = useState(false);
+  const [deadline, setDeadline] = useState('July 31, 2025');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 1. First check if user is logged in
+
     fetch('http://localhost:5000/check-auth', {
       credentials: 'include'
     })
@@ -18,11 +20,11 @@ export default function App() {
         if (!res.ok) {
           throw new Error(data.message || 'Not logged in');
         }
-        setUser(data); // Set user info if logged in
+        setUser(data);
  
       })
       .then(() => {
-        // 2. Then fetch tasks
+
         return fetch('http://localhost:5000/tasks', {
           credentials: 'include'
         });
@@ -36,27 +38,34 @@ export default function App() {
         console.error(err.message);
         setUser(null);
         setTasks([]);
-        navigate('/login'); // ✅ redirect to login page
+        navigate('/login'); 
       })
 
       .finally(() => setLoading(false));
   }, []);
 
-  function addTask(e) {
-    e.preventDefault();
+function addTask(e) {
+  e.preventDefault();
 
-    fetch('http://localhost:5000/tasks', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ text: taskInput })
+  fetch('http://localhost:5000/tasks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      text: taskInput,
+      completed: completed,
+      deadline: deadline || 'No deadline',
     })
-      .then(res => res.json())
-      .then(newTask => {
-        setTasks(prev => [...prev, newTask]);
-        setTaskInput('');
-      });
-  }
+  })
+    .then(res => res.json())
+    .then(newTask => {
+      setTasks(prev => [...prev, newTask]);
+      setTaskInput('');
+      setCompleted(false);
+      setDeadline('');
+    });
+}
+
 
   function deleteTask(id) {
     fetch(`http://localhost:5000/tasks/${id}`, {

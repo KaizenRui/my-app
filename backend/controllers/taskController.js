@@ -1,67 +1,83 @@
-const pool = require('../db');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
+// Create a new task
 const createTask = async (req, res) => {
   const user = req.session.user;
   const { text, completed, deadline } = req.body;
-  try {
-    const result = await pool.query(
-      `INSERT INTO tasks (text, completed, deadline, user_id)
-       VALUES ($1, $2, $3, $4)
-       RETURNING *`,
-      [
-        text,
-        completed || false,
-        deadline || 'No deadline',
-        user.id
-      ]
-    );
 
-    res.status(201).json(result.rows[0]);
+  console.log("==> FULL SESSION:", req.session);
+
+  try {
+    const newTask = await prisma.task.create({
+      data: {
+        text: typeof text === 'string' ? text : 'Untitled Task',
+        completed: typeof completed === 'boolean' ? completed : false,
+        deadline: typeof deadline === 'string' ? deadline : 'No deadline',
+        userId: user.id // Use session user ID
+      },
+    });
+
+    console.log("==> Task created:", newTask);
+    res.status(201).json(newTask);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Something went wrong' });
+    console.error("❌ Create task failed:", err.message);
+    res.status(500).json({ error: 'Failed to create task' });
   }
 };
 
+// Get tasks for logged-in user
 const getTasks = async (req, res) => {
+  const user = req.session.user;
+  if (!user) return res.status(401).json({ message: 'Unauthorized' });
+
   try {
-    const user = req.session.user;
-    if (!user) return res.status(401).json({ message: 'Unauthorized' });
+    const tasks = await prisma.task.findMany({
+      where: {
+        userId: user.id
+      },
+      orderBy: {
+        id: 'asc'
+      }
+    });
 
-    const result = await pool.query(
-      'SELECT * FROM tasks WHERE user_id = $1 ORDER BY id ASC',
-      [user.id] // ← use the session user's ID
-    );
-
-    res.status(200).json(result.rows);
+    res.status(200).json(tasks);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Something went wrong' });
+    console.error("❌ Get tasks failed:", err.message);
+    res.status(500).json({ error: 'Failed to retrieve tasks' });
   }
 };
 
-
+// Delete a task by ID
 const deleteTask = async (req, res) => {
   const { id } = req.params;
 
   try {
-    await pool.query('DELETE FROM tasks WHERE id = $1', [id]);
+    await prisma.task.delete({
+      where: { id: parseInt(id) }
+    });
+
     res.json({ message: `Task with id ${id} deleted` });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Something went wrong' });
+    console.error("❌ Delete task failed:", err.message);
+    res.status(500).json({ error: 'Failed to delete task' });
   }
 };
 
+// Mark a task as completed
 const setStatus = async (req, res) => {
   const { id } = req.params;
 
   try {
-    await pool.query('UPDATE tasks SET completed = true WHERE id = $1', [id]);
+    await prisma.task.update({
+      where: { id: parseInt(id) },
+      data: { completed: true }
+    });
+
     res.json({ message: `Task with id ${id} marked as completed` });
   } catch (err) {
-    console.error('Error updating task status:', err);
-    res.status(500).json({ error: 'Something went wrong while updating status' });
+    console.error("❌ Update task status failed:", err.message);
+    res.status(500).json({ error: 'Failed to update task status' });
   }
 };
 
