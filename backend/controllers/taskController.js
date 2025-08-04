@@ -1,12 +1,9 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Create a new task
 const createTask = async (req, res) => {
   const user = req.session.user;
   const { text, completed, deadline } = req.body;
-
-  console.log("==> FULL SESSION:", req.session);
 
   try {
     const newTask = await prisma.task.create({
@@ -14,11 +11,10 @@ const createTask = async (req, res) => {
         text: typeof text === 'string' ? text : 'Untitled Task',
         completed: typeof completed === 'boolean' ? completed : false,
         deadline: typeof deadline === 'string' ? deadline : 'No deadline',
-        userId: user.id // Use session user ID
+        userId: user.id 
       },
     });
 
-    console.log("==> Task created:", newTask);
     res.status(201).json(newTask);
   } catch (err) {
     console.error("❌ Create task failed:", err.message);
@@ -26,7 +22,6 @@ const createTask = async (req, res) => {
   }
 };
 
-// Get tasks for logged-in user
 const getTasks = async (req, res) => {
   const user = req.session.user;
   if (!user) return res.status(401).json({ message: 'Unauthorized' });
@@ -48,7 +43,6 @@ const getTasks = async (req, res) => {
   }
 };
 
-// Delete a task by ID
 const deleteTask = async (req, res) => {
   const { id } = req.params;
 
@@ -64,7 +58,6 @@ const deleteTask = async (req, res) => {
   }
 };
 
-// Mark a task as completed
 const setStatus = async (req, res) => {
   const { id } = req.params;
 
